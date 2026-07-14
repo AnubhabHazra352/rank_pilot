@@ -24,7 +24,7 @@ interface AppContextType {
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
 
 const api = axios.create({
-    baseURL: BACKEND_URL
+    baseURL: BACKEND_URL,
 });
 
 // Update axios header when token changes
@@ -89,9 +89,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    const register = async () => {
+    const register = async (name: string, email: string, password: string) => {
         try {
-            const res = await axios.post(`${BACKEND_URL}/api/auth/login`, { email, password })
+            const res = await axios.post(`${BACKEND_URL}/api/auth/register`, { name, email, password })
             if (res.data.success) {
                 setToken(res.data.token)
                 setUser(res.data.user)
@@ -100,7 +100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
             return { success: false, message: res.data.message }
         } catch (error) {
-            let message = "Login failed";
+            let message = "Registration failed";
             if (axios.isAxiosError(error)) {
                 message = error.response?.data?.message || message;
             }
@@ -112,7 +112,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     const logout = async () => {
-
+        setToken(null)
+        setUser(null)
+        localStorage.removeItem("token")
     }
 
     const value = { user, token, loading, api, login, register, logout }
